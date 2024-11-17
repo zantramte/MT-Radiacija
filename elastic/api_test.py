@@ -17,7 +17,7 @@ def get_data():
     try:
         response = es.search(
             index='mt-sevanje',
-            size=100,  # Get the first 100 rows, adjust as needed
+            size=90,  # Get the first 100 rows, adjust as needed
             body={
                 'query': {
                     'match_all': {}

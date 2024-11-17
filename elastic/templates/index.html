@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sevanje - Statistika</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            font-size: 1.2rem;
+            color: #888;
+            margin-top: 20px;
+        }
+
+        svg {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Sevanje - Statistika</h1>
+        <p id="loading-text" class="loading">Nalaganje podatkov...</p>
+        <div id="visualization"></div>
+        <button onclick="fetchData()">Osveži podatke</button>
+    </div>
+
+    <script>
+        // Funkcija za pridobivanje podatkov iz API-ja
+        async function fetchData() {
+            document.getElementById("loading-text").style.display = "block";
+
+            try {
+                const response = await fetch('http://localhost:8080/get_total_count');
+                const data = await response.json();
+                document.getElementById("loading-text").style.display = "none";
+
+                // Ustvari vizualizacijo s pomočjo D3.js
+                createVisualization(data.total_count);
+            } catch (error) {
+                document.getElementById("loading-text").innerText = "Napaka pri pridobivanju podatkov";
+            }
+        }
+
+        // Funkcija za ustvarjanje vizualizacije
+        function createVisualization(totalCount) {
+            // Počisti obstoječo vizualizacijo
+            d3.select("#visualization").html("");
+
+            // Nastavitve SVG platna
+            const width = 300;
+            const height = 300;
+            const svg = d3.select("#visualization")
+                          .append("svg")
+                          .attr("width", width)
+                          .attr("height", height);
+
+            // Barvna lestvica za krog
+            const colorScale = d3.scaleSequential(d3.interpolateBlues)
+                                 .domain([0, 1000]);
+
+            // Velikost kroga glede na vrednost
+            const radius = Math.min(100, totalCount / 10);
+
+            // Dodaj krog
+            svg.append("circle")
+               .attr("cx", width / 2)
+               .attr("cy", height / 2)
+               .attr("r", 0)
+               .attr("fill", colorScale(totalCount))
+               .transition()
+               .duration(1000)
+               .attr("r", radius);
+
+            // Dodaj besedilo v sredino kroga
+            svg.append("text")
+               .attr("x", width / 2)
+               .attr("y", height / 2)
+               .attr("text-anchor", "middle")
+               .attr("dy", ".35em")
+               .attr("font-size", "2rem")
+               .attr("fill", "#333")
+               .text(totalCount);
+        }
+
+        // Začni nalaganje podatkov ob nalaganju strani
+        window.onload = fetchData;
+    </script>
+
+</body>
+</html>

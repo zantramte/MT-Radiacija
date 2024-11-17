@@ -18,7 +18,7 @@ body {
     height: 100%;
 }
 
-/* Stranski meni z gumbi */
+/* Stranski meni z gumbi, dodamo svoje stile po zelji */
 .sidebar {
     display: flex;
     flex-direction: column;
